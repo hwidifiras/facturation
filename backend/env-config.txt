@@ -1,0 +1,6 @@
+# MongoDB Atlas Connection String
+MONGODB_URI=mongodb+srv://haouidifiras:imXUjDSuyVtr4hxa@facturation.4sqartn.mongodb.net/facture?retryWrites=true&w=majority
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
