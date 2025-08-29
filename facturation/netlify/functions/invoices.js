@@ -4,8 +4,10 @@ export async function handler(event, context) {
   // Enable CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Credentials': 'true',
+    'Cache-Control': 'no-cache'
   };
 
   // Handle preflight requests
@@ -43,10 +45,19 @@ export async function handler(event, context) {
     }
   } catch (error) {
     console.error('Function error:', error);
+    console.error('Request details:', {
+      method: event.httpMethod,
+      path: event.path,
+      query: event.queryStringParameters,
+      headers: event.headers
+    });
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Internal server error' })
+      body: JSON.stringify({ 
+        error: 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      })
     };
   } finally {
     if (db) {
