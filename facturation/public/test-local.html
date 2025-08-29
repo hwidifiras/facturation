@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Storage Test - Acrecert Facturation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Local Storage Test</h1>
+        <p>This page tests if your invoice system works with localStorage (offline mode).</p>
+        
+        <div class="result info">
+            <strong>Current Mode:</strong> Local Development (localStorage)
+            <br>
+            <strong>Status:</strong> Ready to test invoice creation and storage
+        </div>
+        
+        <button class="test-button" onclick="testCreateInvoice()">Create Test Invoice</button>
+        <button class="test-button" onclick="testGetInvoices()">View All Invoices</button>
+        <button class="test-button" onclick="clearStorage()">Clear All Data</button>
+        <button class="test-button" onclick="viewStorage()">View Raw Storage</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function showResult(message, type = 'success') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        function testCreateInvoice() {
+            showResult('📝 Creating test invoice in localStorage...', 'loading');
+            
+            try {
+                const testInvoice = {
+                    id: 'test_' + Date.now(),
+                    invoice_number: 'TEST' + Math.floor(Math.random() * 1000),
+                    date: new Date().toISOString().split('T')[0],
+                    client_name: 'Test Client ' + Math.floor(Math.random() * 100),
+                    client_address: 'Test Address',
+                    client_email: 'test@example.com',
+                    client_mf: 'TEST123',
+                    items: [{
+                        description: 'Test Service',
+                        unitPrice: 100,
+                        manDays: 1,
+                        total: 100
+                    }],
+                    timbre: 1,
+                    tax_rate: 19,
+                    total_ht: 100,
+                    tva: 19,
+                    total_ttc: 120,
+                    document_type: 'facture',
+                    created_at: new Date().toISOString()
+                };
+
+                // Get existing invoices
+                const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+                invoices.push(testInvoice);
+                localStorage.setItem('invoices', JSON.stringify(invoices));
+
+                showResult(`✅ Test invoice created successfully!<br>
+                <strong>Invoice Number:</strong> ${testInvoice.invoice_number}<br>
+                <strong>Client:</strong> ${testInvoice.client_name}<br>
+                <strong>Total:</strong> ${testInvoice.total_ttc} TND<br>
+                <strong>Total Invoices:</strong> ${invoices.length}`, 'success');
+                
+            } catch (error) {
+                showResult(`❌ Error creating invoice: ${error.message}`, 'error');
+            }
+        }
+
+        function testGetInvoices() {
+            showResult('📋 Fetching invoices from localStorage...', 'loading');
+            
+            try {
+                const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+                
+                if (invoices.length === 0) {
+                    showResult('📭 No invoices found in localStorage. Create some test invoices first!', 'info');
+                } else {
+                    let invoiceList = '<strong>Found ' + invoices.length + ' invoices:</strong><br><br>';
+                    invoices.forEach((invoice, index) => {
+                        invoiceList += `${index + 1}. <strong>${invoice.invoice_number}</strong> - ${invoice.client_name} - ${invoice.total_ttc} TND<br>`;
+                    });
+                    showResult(invoiceList, 'success');
+                }
+            } catch (error) {
+                showResult(`❌ Error fetching invoices: ${error.message}`, 'error');
+            }
+        }
+
+        function clearStorage() {
+            if (confirm('Are you sure you want to clear all invoice data from localStorage?')) {
+                localStorage.removeItem('invoices');
+                showResult('🗑️ All invoice data cleared from localStorage!', 'success');
+            }
+        }
+
+        function viewStorage() {
+            try {
+                const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+                const storageData = JSON.stringify(invoices, null, 2);
+                showResult(`<strong>Raw localStorage data:</strong><br><pre>${storageData}</pre>`, 'info');
+            } catch (error) {
+                showResult(`❌ Error reading storage: ${error.message}`, 'error');
+            }
+        }
+
+        // Show initial status
+        window.onload = function() {
+            const invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+            showResult(`🚀 Ready to test!<br>
+            <strong>Current invoices in storage:</strong> ${invoices.length}<br>
+            <strong>Mode:</strong> Local Development (localStorage)`, 'info');
+        };
+    </script>
+</body>
+</html>
+
+
+
