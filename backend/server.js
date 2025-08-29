@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection
-const mongoURI = 'mongodb+srv://haouidifiras:imXUjDSuyVtr4hxa@facturation.4sqartn.mongodb.net/facture?retryWrites=true&w=majority';
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/facture';
 console.log('🔗 Attempting to connect to MongoDB...');
 console.log('📡 Connection string:', mongoURI.replace(/\/\/.*@/, '//***:***@')); // Hide credentials in logs
 
